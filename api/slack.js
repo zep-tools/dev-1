@@ -26,6 +26,10 @@ const BRANCHES = [
 
 export default async (req, res) => {
   try {
+    if (req.body.type === "url_verification") {
+      return res.status(200).send(req.body.challenge);
+    }
+
     await app.start();
 
     app.command("/dev_프론트_퀴즈", async ({ ack, client, command }) => {
