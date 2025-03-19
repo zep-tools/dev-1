@@ -3,11 +3,11 @@ import SlackBolt from "@slack/bolt";
 
 const receiver = new SlackBolt.ExpressReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
+  processBeforeResponse: true,
 });
 
 const app = new SlackBolt.App({
   token: process.env.SLACK_BOT_TOKEN,
-  appToken: process.env.SLACK_APP_TOKEN,
   receiver,
 });
 
@@ -60,7 +60,7 @@ app.command("/dev_프론트_퀴즈", async ({ ack, client, command }) => {
 
 export default async (req, res) => {
   try {
-    await receiver.app(req, res);
+    await app.processEvent(req);
     res.status(200).send();
   } catch (error) {
     console.error(error);
