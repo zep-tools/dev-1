@@ -30,7 +30,7 @@ export default async (req, res) => {
 
       const thread = await client.chat.postMessage({
         channel: req.body.channel_id,
-        text: "🔎 dev_프론트_퀴즈",
+        text: "🔎 프론트_퀴즈",
       });
       const threadTs = thread.ts;
 
