@@ -25,8 +25,10 @@ const BRANCHES = [
 
 export default async (req, res) => {
   try {
+    console.log(1);
     app.command("/dev_프론트_퀴즈", async ({ ack, client, command }) => {
       await ack();
+      console.log(2);
 
       const thread = await client.chat.postMessage({
         channel: command.channel_id,
