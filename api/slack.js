@@ -25,13 +25,11 @@ const BRANCHES = [
 
 export default async (req, res) => {
   try {
-    console.log(req.body);
     if (req.body && req.body.command === "/dev_프론트_퀴즈") {
-      const { client, ack } = app;
-      await ack();
+      const { client } = app;
 
       const thread = await client.chat.postMessage({
-        channel: command.channel_id,
+        channel: req.body.channel_id,
         text: "🔎 dev_프론트_퀴즈",
       });
       const threadTs = thread.ts;
@@ -55,7 +53,7 @@ export default async (req, res) => {
       }
 
       await client.chat.postMessage({
-        channel: command.channel_id,
+        channel: req.body.channel_id,
         text: message.trim(),
         thread_ts: threadTs,
       });
