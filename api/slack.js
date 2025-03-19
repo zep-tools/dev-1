@@ -1,10 +1,14 @@
 import { Octokit } from "@octokit/rest";
 import SlackBolt from "@slack/bolt";
 
+const receiver = new SlackBolt.ExpressReceiver({
+  signingSecret: process.env.SLACK_SIGNING_SECRET,
+});
+
 const app = new SlackBolt.App({
   token: process.env.SLACK_BOT_TOKEN,
-  signingSecret: process.env.SLACK_SIGNING_SECRET,
   appToken: process.env.SLACK_APP_TOKEN,
+  receiver,
 });
 
 const octokit = new Octokit({
@@ -23,43 +27,41 @@ const BRANCHES = [
   "publish/stage",
 ];
 
+app.command("/dev_프론트_퀴즈", async ({ ack, client, command }) => {
+  await ack();
+
+  const thread = await client.chat.postMessage({
+    channel: command.channel_id,
+    text: "🔎 dev_프론트_퀴즈",
+  });
+  const threadTs = thread.ts;
+
+  let message = "";
+  for (const branch of BRANCHES) {
+    const { data: commit } = await octokit.repos.getCommit({
+      owner: "zep-us",
+      repo: "zep-quiz-client",
+      ref: branch,
+    });
+
+    message += `• \`${branch}\`\n`;
+    message += `${new Date(commit.commit.author.date).toLocaleString("ko-KR", {
+      timeZone: "Asia/Seoul",
+    })}\n`;
+    message += `${commit.commit.message}\n\n`;
+  }
+
+  await client.chat.postMessage({
+    channel: command.channel_id,
+    text: message.trim(),
+    thread_ts: threadTs,
+  });
+});
+
 export default async (req, res) => {
   try {
-    if (req.body && req.body.command === "/dev_프론트_퀴즈") {
-      const { client } = app;
-
-      const thread = await client.chat.postMessage({
-        channel: req.body.channel_id,
-        text: "🔎 프론트_퀴즈",
-      });
-      const threadTs = thread.ts;
-
-      let message = "";
-      for (const branch of BRANCHES) {
-        const { data: commit } = await octokit.repos.getCommit({
-          owner: "zep-us",
-          repo: "zep-quiz-client",
-          ref: branch,
-        });
-
-        message += `• \`${branch}\`\n`;
-        message += `${new Date(commit.commit.author.date).toLocaleString(
-          "ko-KR",
-          {
-            timeZone: "Asia/Seoul",
-          }
-        )}\n`;
-        message += `${commit.commit.message}\n\n`;
-      }
-
-      await client.chat.postMessage({
-        channel: req.body.channel_id,
-        text: message.trim(),
-        thread_ts: threadTs,
-      });
-
-      res.status(200).send();
-    }
+    await receiver.router(req, res);
+    res.status(200).send();
   } catch (error) {
     console.error(error);
     res.status(500).send(error);
