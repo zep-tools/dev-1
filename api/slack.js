@@ -58,14 +58,10 @@ export default async (req, res) => {
         thread_ts: threadTs,
       });
 
-      if (!res.headersSent) {
-        res.status(200).send();
-      }
+      res.status(200).send();
     }
   } catch (error) {
     console.error(error);
-    if (!res.headersSent) {
-      res.status(500).send(error);
-    }
+    res.status(500).send(error);
   }
 };
