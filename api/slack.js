@@ -27,7 +27,6 @@ export default async (req, res) => {
   try {
     app.command("/dev_프론트_퀴즈", async ({ ack, client, command }) => {
       await ack();
-      console.log(command);
 
       const thread = await client.chat.postMessage({
         channel: command.channel_id,
@@ -58,7 +57,7 @@ export default async (req, res) => {
       });
     });
 
-    res.status(200).send();
+    res.status(200).send(JSON.stringify(command));
   } catch (error) {
     console.error(error);
     res.status(500).send(error);
