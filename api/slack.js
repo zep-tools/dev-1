@@ -60,7 +60,7 @@ app.command("/dev_프론트_퀴즈", async ({ ack, client, command }) => {
 
 export default async (req, res) => {
   try {
-    await app.processEvent(req);
+    await app.start();
     res.status(200).send();
   } catch (error) {
     console.error(error);
