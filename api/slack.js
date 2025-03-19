@@ -23,45 +23,47 @@ const BRANCHES = [
   "publish/stage",
 ];
 
-export default async (req, res) => {
-  try {
-    console.log(1);
-    app.command("/dev_프론트_퀴즈", async ({ ack, client, command }) => {
-      await ack();
-      console.log(2);
+app.command("/dev_프론트_퀴즈", async ({ ack, client, command }) => {
+  await ack();
 
-      const thread = await client.chat.postMessage({
-        channel: command.channel_id,
-        text: "🔎 dev_프론트_퀴즈",
-      });
-      const threadTs = thread.ts;
+  const thread = await client.chat.postMessage({
+    channel: command.channel_id,
+    text: "🔎 dev_프론트_퀴즈",
+  });
+  const threadTs = thread.ts;
 
-      let message = "";
-      for (const branch of BRANCHES) {
-        const { data: commit } = await octokit.repos.getCommit({
-          owner: "zep-us",
-          repo: "zep-quiz-client",
-          ref: branch,
-        });
-
-        message += `• \`${branch}\`\n`;
-        message += `${new Date(commit.commit.author.date).toLocaleString(
-          "ko-KR",
-          { timeZone: "Asia/Seoul" }
-        )}\n`;
-        message += `${commit.commit.message}\n\n`;
-      }
-
-      await client.chat.postMessage({
-        channel: command.channel_id,
-        text: message.trim(),
-        thread_ts: threadTs,
-      });
+  let message = "";
+  for (const branch of BRANCHES) {
+    const { data: commit } = await octokit.repos.getCommit({
+      owner: "zep-us",
+      repo: "zep-quiz-client",
+      ref: branch,
     });
 
-    res.status(200).send();
+    message += `• \`${branch}\`\n`;
+    message += `${new Date(commit.commit.author.date).toLocaleString("ko-KR", {
+      timeZone: "Asia/Seoul",
+    })}\n`;
+    message += `${commit.commit.message}\n\n`;
+  }
+
+  await client.chat.postMessage({
+    channel: command.channel_id,
+    text: message.trim(),
+    thread_ts: threadTs,
+  });
+});
+
+export default async (req, res) => {
+  try {
+    await app.processEvent(req.body, req.headers);
+    if (!res.headersSent) {
+      res.status(200).send();
+    }
   } catch (error) {
     console.error(error);
-    res.status(500).send(error);
+    if (!res.headersSent) {
+      res.status(500).send(error);
+    }
   }
 };
