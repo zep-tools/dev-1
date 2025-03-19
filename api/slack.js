@@ -57,7 +57,7 @@ export default async (req, res) => {
       });
     });
 
-    res.status(200).send(JSON.stringify(command));
+    res.status(200).send();
   } catch (error) {
     console.error(error);
     res.status(500).send(error);
