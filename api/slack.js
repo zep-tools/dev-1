@@ -25,8 +25,6 @@ const BRANCHES = [
 
 export default async (req, res) => {
   try {
-    await app.start();
-
     app.command("/dev_프론트_퀴즈", async ({ ack, client, command }) => {
       await ack();
 
