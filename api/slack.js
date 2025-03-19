@@ -42,6 +42,10 @@ export default async (req, res) => {
           ref: branch,
         });
 
+        message += `(현재 시간: ${new Date().toLocaleString("ko-KR", {
+          timeZone: "Asia/Seoul",
+        })})\n\n`;
+
         message += `• \`${branch}\`\n`;
         message += `${new Date(commit.commit.author.date).toLocaleString(
           "ko-KR",
