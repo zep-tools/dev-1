@@ -29,8 +29,6 @@ export default async (req, res) => {
       return res.status(200).send(req.body.challenge);
     }
 
-    await app.start();
-
     app.command("/dev_프론트_퀴즈", async ({ ack, client, command }) => {
       await ack();
 
