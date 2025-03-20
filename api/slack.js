@@ -34,17 +34,16 @@ export default async (req, res) => {
       });
       const threadTs = thread.ts;
 
-      let message = "";
+      let message = `(현재 시간: ${new Date().toLocaleString("ko-KR", {
+        timeZone: "Asia/Seoul",
+      })})\n\n`;
+
       for (const branch of BRANCHES) {
         const { data: commit } = await octokit.repos.getCommit({
           owner: "zep-us",
           repo: "zep-quiz-client",
           ref: branch,
         });
-
-        message += `(현재 시간: ${new Date().toLocaleString("ko-KR", {
-          timeZone: "Asia/Seoul",
-        })})\n\n`;
 
         message += `• \`${branch}\`\n`;
         message += `${new Date(commit.commit.author.date).toLocaleString(
