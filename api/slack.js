@@ -23,6 +23,12 @@ const BRANCHES = [
   "publish/stage",
 ];
 
+// 🔧 추가된 부분: 레포 리스트 정의
+const REPOS = [
+  { owner: "zep-us", repo: "zep-quiz-client", label: "📦 zep-quiz-client" },
+  { owner: "zep-us", repo: "zep-quiz-script", label: "📦 zep-quiz-script" },
+];
+
 export default async (req, res) => {
   try {
     if (req.body.command === "/dev_프론트_퀴즈") {
@@ -38,21 +44,32 @@ export default async (req, res) => {
         timeZone: "Asia/Seoul",
       })})\n\n`;
 
-      for (const branch of BRANCHES) {
-        const { data: commit } = await octokit.repos.getCommit({
-          owner: "zep-us",
-          repo: "zep-quiz-client",
-          ref: branch,
-        });
+      // 🔁 수정된 부분: REPOS 루프로 여러 레포 처리
+      for (const { owner, repo, label } of REPOS) {
+        message += `${label}\n`;
 
-        message += `• \`${branch}\`\n`;
-        message += `${new Date(commit.commit.author.date).toLocaleString(
-          "ko-KR",
-          {
-            timeZone: "Asia/Seoul",
+        for (const branch of BRANCHES) {
+          try {
+            const { data: commit } = await octokit.repos.getCommit({
+              owner,
+              repo,
+              ref: branch,
+            });
+
+            message += `• \`${branch}\`\n`;
+            message += `${new Date(commit.commit.author.date).toLocaleString(
+              "ko-KR",
+              {
+                timeZone: "Asia/Seoul",
+              }
+            )}\n`;
+            message += `${commit.commit.message}\n\n`;
+          } catch (err) {
+            message += `• \`${branch}\` ❌ 브랜치 없음 또는 에러\n\n`;
           }
-        )}\n`;
-        message += `${commit.commit.message}\n\n`;
+        }
+
+        message += `\n`; // 레포 간 구분 줄
       }
 
       await client.chat.postMessage({
